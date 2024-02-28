@@ -1,0 +1,31 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model DiamondPrice {
+  createdAt     DateTime       @default(now())
+  id            String         @id @default(auto())
+  organizations Organization[]
+  value         Int            @default(427)
+}
+
+model Organization {
+  bigoId         String?       @map("bigo_id")
+  confirmState   Boolean       @default(true) @map("confirm_state")
+  createdAt      DateTime      @default(now())
+  diamondCount   Int           @map("diamond_count")
+  diamondPrice   DiamondPrice? @relation(fields: [diamondPriceId], references: [id])
+  diamondPriceId String?
+  id             String        @id @default(auto())
+  isSendSms      Boolean       @default(true) @map("is_send_sms")
+  lastestToken   String        @map("lastest_token")
+  name           String?
+  operators      Json?
+  orders         Json?
+  updatedAt      DateTime
+}
