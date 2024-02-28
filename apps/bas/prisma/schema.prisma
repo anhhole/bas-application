@@ -1,0 +1,89 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  createdAt DateTime @default(now())
+  firstName String?
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+model Customer {
+  avatar      String?
+  bigoId      String?  @unique
+  countryCode String?
+  createdAt   DateTime @default(now())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  orders      Order[]
+  updatedAt   DateTime
+  userName    String?
+}
+
+model Operator {
+  bigoId         String?
+  createdAt      DateTime                 @default(now())
+  diamondsAmount Int
+  id             String                   @id @default(auto()) @map("_id") @db.ObjectId
+  operatorRole   EnumOperatorOperatorRole
+  organization   Organization             @relation(fields: [organizationId], references: [id])
+  organizationId String                   @db.ObjectId
+  updatedAt      DateTime
+  userName       String?
+}
+
+model Organization {
+  bigoId         String?      @map("bigo_id")
+  confirmState   Boolean      @default(true) @map("confirm_state")
+  createdAt      DateTime     @default(now())
+  diamondCount   Int          @map("diamond_count")
+  diamondPrice   DiamondPrice @relation(fields: [diamondPriceId], references: [id])
+  diamondPriceId String       @db.ObjectId
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  isSendSms      Boolean      @default(true) @map("is_send_sms")
+  lastestToken   String       @map("lastest_token")
+  name           String?
+  operators      Operator[]
+  orders         Order[]
+  updatedAt      DateTime
+}
+
+model DiamondPrice {
+  createdAt     DateTime       @default(now())
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  organizations Organization[]
+  value         Int            @default(427)
+}
+
+model Order {
+  amount         Int?
+  createdAt      DateTime             @default(now())
+  customer       Customer             @relation(fields: [customerId], references: [id])
+  customerId     String               @db.ObjectId
+  id             String               @id @default(auto()) @map("_id") @db.ObjectId
+  organization   Organization         @relation(fields: [organizationId], references: [id])
+  organizationId String               @db.ObjectId
+  statusOrder    EnumOrderStatusOrder
+  updatedAt      DateTime
+}
+
+enum EnumOperatorOperatorRole {
+  Employee
+  Agent
+}
+
+enum EnumOrderStatusOrder {
+  Complete
+  Pending
+  Error
+  Refund
+}
